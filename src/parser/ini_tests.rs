@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod ini_tests {
     use super::super::ini::*;
+    use indexmap::IndexMap;
     use lazy_static::lazy_static;
-		use indexmap::IndexMap;
 
     lazy_static! {
         static ref CONTENT: IndexMap<String, String> = {
@@ -18,9 +18,9 @@ mod ini_tests {
             m.insert(String::from("invalid_section"), String::from("[[owner]"));
             m.insert(String::from("invalid_unclosed_section"), String::from("[owner\nkey=val\n"));
             m.insert(String::from("invalid_unopened_section"), String::from("owner]\nkey=val\n"));
-            m.insert(String::from("invalid_no_equal"), String::from("[owner]\nkeyval"));
-            m.insert(String::from("invalid_no_value"), String::from("[owner]\nkeyval="));
-            m.insert(String::from("invalid_no_key"), String::from("[owner]\n=keyval"));
+            m.insert(String::from("invalid_no_equal"), String::from("[owner]\nkey_value"));
+            m.insert(String::from("invalid_no_value"), String::from("[owner]\nkey_value="));
+            m.insert(String::from("invalid_no_key"), String::from("[owner]\n=nkey_value"));
             m.insert(String::from("invalid_more_than_one_equal"), String::from("[owner]\nkey==val"));
             m.insert(String::from("invalid_no_sections"), String::from(""));
             m.insert(String::from("invalid_no_options"), String::from("[owner]"));
@@ -192,7 +192,7 @@ mod ini_tests {
         assert!(!parser.from_string(content).is_err());
 
         let got = parser.get_options("owner").unwrap();
-				assert_eq!(got.len(), 0);
+        assert_eq!(got.len(), 0);
     }
 
     #[test]
@@ -269,7 +269,7 @@ mod ini_tests {
         let content: String = CONTENT.get("valid").unwrap().to_string();
         assert!(!parser.from_string(content).is_err());
 
-				assert!(parser.get_section("ownerr").is_err());
+        assert!(parser.get_section("owners").is_err());
     }
 
     #[test]
@@ -279,7 +279,7 @@ mod ini_tests {
         let content: String = CONTENT.get("valid").unwrap().to_string();
         assert!(!parser.from_string(content).is_err());
 
-				assert!(parser.get_option("owner", "server").is_err());
+        assert!(parser.get_option("owner", "server").is_err());
     }
 
     #[test]
@@ -289,7 +289,7 @@ mod ini_tests {
         let content: String = CONTENT.get("valid").unwrap().to_string();
         assert!(!parser.from_string(content).is_err());
 
-				assert!(parser.get_bool("owner", "server").is_err());
+        assert!(parser.get_bool("owner", "server").is_err());
     }
 
     #[test]
@@ -299,7 +299,7 @@ mod ini_tests {
         let content: String = CONTENT.get("valid").unwrap().to_string();
         assert!(!parser.from_string(content).is_err());
 
-				assert!(parser.get_int("owner", "server").is_err());
+        assert!(parser.get_int("owner", "server").is_err());
     }
 
     #[test]
@@ -309,6 +309,6 @@ mod ini_tests {
         let content: String = CONTENT.get("valid").unwrap().to_string();
         assert!(!parser.from_string(content).is_err());
 
-				assert!(parser.get_float("owner", "server").is_err());
+        assert!(parser.get_float("owner", "server").is_err());
     }
 }
