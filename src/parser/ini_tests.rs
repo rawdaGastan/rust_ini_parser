@@ -3,6 +3,8 @@ mod ini_tests {
     use super::super::ini::*;
     use indexmap::IndexMap;
     use lazy_static::lazy_static;
+    use std::env::temp_dir;
+    use std::fs::File;
 
     lazy_static! {
         static ref CONTENT: IndexMap<String, String> = {
@@ -33,6 +35,17 @@ mod ini_tests {
         let mut parser: Parser = Parser::new();
         let content = CONTENT.get("valid").unwrap().to_string();
         assert!(!parser.from_string(content).is_err());
+
+        let mut dir = temp_dir();
+        dir.push("test.ini");
+
+        assert!(!File::create(&dir).is_err());
+        assert!(!parser
+            .from_file(&dir.as_path().to_str().unwrap().to_string())
+            .is_err());
+        assert!(!parser
+            .save_to_file(&dir.as_path().to_str().unwrap().to_string())
+            .is_err());
     }
 
     #[test]
@@ -142,6 +155,19 @@ mod ini_tests {
 
         let option = parser.get_option("owner", "name").unwrap();
         assert_eq!(option, "Rawda");
+    }
+
+    #[test]
+    fn set_bool_option_test() {
+        let mut parser: Parser = Parser::new();
+
+        let content = CONTENT.get("valid").unwrap().to_string();
+        assert!(!parser.from_string(content).is_err());
+
+        assert!(!parser.set_option("database", "protected", "0").is_err());
+
+        let option = parser.get_bool("database", "protected").unwrap();
+        assert!(!option);
     }
 
     #[test]
@@ -289,7 +315,7 @@ mod ini_tests {
         let content: String = CONTENT.get("valid").unwrap().to_string();
         assert!(!parser.from_string(content).is_err());
 
-        assert!(parser.get_bool("owner", "server").is_err());
+        assert!(parser.get_bool("owner", "name").is_err());
     }
 
     #[test]
@@ -299,7 +325,7 @@ mod ini_tests {
         let content: String = CONTENT.get("valid").unwrap().to_string();
         assert!(!parser.from_string(content).is_err());
 
-        assert!(parser.get_int("owner", "server").is_err());
+        assert!(parser.get_int("owner", "name").is_err());
     }
 
     #[test]
@@ -309,6 +335,6 @@ mod ini_tests {
         let content: String = CONTENT.get("valid").unwrap().to_string();
         assert!(!parser.from_string(content).is_err());
 
-        assert!(parser.get_float("owner", "server").is_err());
+        assert!(parser.get_float("owner", "name").is_err());
     }
 }

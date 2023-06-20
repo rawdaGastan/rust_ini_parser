@@ -49,7 +49,7 @@ impl Parser {
         formatted_str.trim_end().to_string()
     }
 
-    pub fn from_file(&mut self, file_name: String) -> std::io::Result<()> {
+    pub fn from_file(&mut self, file_name: &String) -> std::io::Result<()> {
         let mut file = File::open(file_name)?;
         let mut buffer = String::new();
 
@@ -57,7 +57,7 @@ impl Parser {
         self.from_string(buffer)
     }
 
-    pub fn save_to_file(&mut self, file_name: String) -> std::io::Result<()> {
+    pub fn save_to_file(&mut self, file_name: &String) -> std::io::Result<()> {
         let mut buffer = File::create(file_name)?;
         buffer.write_all(self.string().as_bytes())
     }
@@ -109,19 +109,13 @@ impl Parser {
                     self.add(&section, &key, &val);
                 }
                 // parse comment lines
-                else if line.starts_with(';') {
+                else if line.starts_with(';') || line.trim().is_empty() {
                     continue;
                 }
                 // invalid content
                 else {
                     return Err(Error::new(ErrorKind::Other, "invalid ini content"));
                 }
-            } else if line.trim().is_empty() {
-                continue;
-            }
-            // invalid content
-            else {
-                return Err(Error::new(ErrorKind::Other, "invalid ini content"));
             }
         }
 
@@ -195,13 +189,21 @@ impl Parser {
         ));
     }
 
-    pub fn get_int(&mut self, section_key: &str, option_key: &str) -> Result<u64, Error> {
-        let option = self.get_option(section_key, option_key)?;
-        Ok(option.parse::<u64>().unwrap())
+    pub fn get_int(
+        &mut self,
+        section_key: &str,
+        option_key: &str,
+    ) -> Result<u64, std::num::ParseIntError> {
+        let option = self.get_option(section_key, option_key).unwrap();
+        option.parse::<u64>()
     }
 
-    pub fn get_float(&mut self, section_key: &str, option_key: &str) -> Result<f64, Error> {
-        let option = self.get_option(section_key, option_key)?;
-        Ok(option.parse::<f64>().unwrap())
+    pub fn get_float(
+        &mut self,
+        section_key: &str,
+        option_key: &str,
+    ) -> Result<f64, std::num::ParseFloatError> {
+        let option = self.get_option(section_key, option_key).unwrap();
+        option.parse::<f64>()
     }
 }
