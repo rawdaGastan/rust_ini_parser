@@ -46,7 +46,7 @@ impl Parser {
             formatted_str.push('\n');
         }
 
-        formatted_str
+        formatted_str.trim_end().to_string()
     }
 
     pub fn from_file(&mut self, file_name: String) -> std::io::Result<()> {
