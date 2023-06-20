@@ -1,6 +1,6 @@
 # rust_ini_parser
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/cd6e18aac6be404ab89ec160b4b36671)](https://app.codacy.com/gh/rawdaGastan/rust_ini_parser/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=threefoldtech/rust_ini_parser&amp;utm_campaign=Badge_Grade) [![Dependabot](https://badgen.net/badge/Dependabot/enabled/green?icon=dependabot)](https://dependabot.com/) [![Testing](https://github.com/rawdagastan/rust_ini_parser/actions/workflows/rust.yml/badge.svg?branch=development_mono)](https://github.com/rawdagastan/rust_ini_parser/actions/workflows/rust.yml) [![Coverage Status](https://coveralls.io/repos/github/xd009642/tarpaulin/badge.svg?branch=develop)](https://coveralls.io/github/xd009642/tarpaulin?branch=develop)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/cd6e18aac6be404ab89ec160b4b36671)](https://app.codacy.com/gh/rawdaGastan/rust_ini_parser/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=threefoldtech/rust_ini_parser&amp;utm_campaign=Badge_Grade) [![Dependabot](https://badgen.net/badge/Dependabot/enabled/green?icon=dependabot)](https://dependabot.com/) [![Testing](https://github.com/rawdagastan/rust_ini_parser/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/rawdagastan/rust_ini_parser/actions/workflows/rust.yml) [![Coverage Status](https://coveralls.io/repos/github/xd009642/tarpaulin/badge.svg?branch=develop)](https://coveralls.io/github/xd009642/tarpaulin?branch=develop)
 
 ## How to use
 
