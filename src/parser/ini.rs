@@ -1,21 +1,21 @@
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Error, ErrorKind, Read, Write};
+use indexmap::IndexMap;
 
 #[derive(Debug, Default)]
 pub struct Parser {
-    parsed_map: HashMap<String, HashMap<String, String>>,
+    parsed_map: IndexMap<String, IndexMap<String, String>>,
 }
 
 impl Parser {
     pub fn new() -> Parser {
         Parser {
-            parsed_map: HashMap::new(),
+            parsed_map: IndexMap::new(),
         }
     }
 
-    pub fn parsed_map(&self) -> &HashMap<String, HashMap<String, String>> {
-        &self.parsed_map
+    pub fn parsed_map(&mut self) -> IndexMap<String, IndexMap<String, String>> {
+        self.parsed_map.clone()
     }
 
     fn ensure_section(&mut self, parent: &String) {
@@ -38,7 +38,7 @@ impl Parser {
         let mut formatted_str = String::new();
 
         for (parent, info) in parsed_map.into_iter() {
-            formatted_str.push_str(&format!("{}\n", parent));
+            formatted_str.push_str(&format!("[{}]\n", parent));
             for (key, value) in info {
                 formatted_str.push_str(&format!("{} = {}\n", key, value));
             }
@@ -63,7 +63,7 @@ impl Parser {
     }
 
     pub fn from_string(&mut self, content: String) -> Result<(), Error> {
-        self.parsed_map = HashMap::new();
+        self.parsed_map = IndexMap::new();
         let mut key = String::new();
         let mut val = String::new();
         let mut section = String::new();
@@ -130,61 +130,61 @@ impl Parser {
 
     pub fn get_sections(&mut self) -> Vec<String> {
         let parsed_map = self.parsed_map.clone();
-
-        let mut sections: Vec<String> = Vec::new();
-        for (parent, _) in parsed_map.into_iter() {
-            sections.push(parent);
-        }
-
-        sections
+				parsed_map.keys().cloned().collect::<Vec<String>>()
     }
 
-    pub fn get_section(&mut self, section_key: &String) -> HashMap<String, String> {
-        self.parsed_map.get(section_key).unwrap().clone()
+    pub fn get_section(&mut self, section_key: &str) -> Result<IndexMap<String, String>, Error> {
+				if !self.parsed_map.contains_key(section_key) {
+						return Err(Error::new(ErrorKind::Other, format!("section {} does not exist", section_key)));
+				}
+        Ok(self.parsed_map.get(section_key).unwrap().clone())
     }
 
-    pub fn get_options(&mut self, section_key: &String) -> Vec<String> {
-        let section = self.get_section(section_key);
-
-        let mut options: Vec<String> = Vec::new();
-        for (option, _) in section.into_iter() {
-            options.push(option.to_string());
-        }
-
-        options
+    pub fn get_options(&mut self, section_key: &str) -> Result<Vec<String>, Error> {
+        let section = self.get_section(section_key)?;
+				Ok(section.keys().cloned().collect::<Vec<String>>())
     }
 
-    pub fn get_option(&mut self, section_key: &String, option_key: &String) -> String {
-        let section = self.get_section(section_key);
-        section.get(option_key).unwrap().to_string()
+    pub fn get_option(&mut self, section_key: &str, option_key: &str) -> Result<String, Error> {
+        let section = self.get_section(section_key)?;
+
+				if !section.contains_key(option_key) {
+						return Err(Error::new(ErrorKind::Other, format!("option {} does not exist in section {}", option_key, section_key)));
+				}
+
+        Ok(section.get(option_key).unwrap().to_string())
     }
 
-    pub fn set_option(&mut self, section_key: String, option_key: String, option_val: String) {
-        let mut section = self.get_section(&section_key);
+    pub fn set_option(&mut self, section_key: &str, option_key: &str, option_val: &str) -> Result<(), Error> {
+        let mut section = self.get_section(section_key)?;
 
-        section.entry(option_key).or_insert(option_val);
-        self.parsed_map.entry(section_key).or_insert(section);
+        *section
+            .entry(option_key.to_string())
+            .or_insert(option_val.to_string()) = option_val.to_string();
+        *self.parsed_map.get_mut(section_key).unwrap() = section;
+
+				Ok(())
     }
 
-    pub fn get_bool(&mut self, section_key: String, option_key: String) -> bool {
-        let option = self.get_option(&section_key, &option_key);
+    pub fn get_bool(&mut self, section_key: &str, option_key: &str) -> Result<bool, Error> {
+        let option = self.get_option(&section_key, &option_key)?;
 
         if ["true", "True", "yes", "1"].contains(&option.as_str()) {
-            return true;
+            return Ok(true);
         } else if ["false", "False", "no", "0"].contains(&option.as_str()) {
-            return false;
+            return Ok(false);
         }
 
-        false
+				return Err(Error::new(ErrorKind::Other, format!("option {} is not supported as a boolean", option)));
     }
 
-    pub fn get_int(&mut self, section_key: String, option_key: String) -> u64 {
-        let option = self.get_option(&section_key, &option_key);
-        option.parse::<u64>().unwrap()
+    pub fn get_int(&mut self, section_key: &str, option_key: &str) -> Result<u64, Error> {
+        let option = self.get_option(&section_key, &option_key)?;
+        Ok(option.parse::<u64>().unwrap())
     }
 
-    pub fn get_float(&mut self, section_key: String, option_key: String) -> f64 {
-        let option = self.get_option(&section_key, &option_key);
-        option.parse::<f64>().unwrap()
+    pub fn get_float(&mut self, section_key: &str, option_key: &str) -> Result<f64, Error> {
+        let option = self.get_option(&section_key, &option_key)?;
+        Ok(option.parse::<f64>().unwrap())
     }
 }
