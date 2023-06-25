@@ -50,6 +50,16 @@ parser.from_file(String::from("INI_FILE_PATH")).expect("Should read from file");
 - `parser.get_int( section_key, option_key )` &rarr; to set the integer value of an option inside a section
 - `parser.get_float( section_key, option_key )` &rarr; to set the float value of an option inside a section
 
+## Build
+
+```bash
+cargo build
+```
+
+```bash
+make build
+```
+
 ## Testing
 
 Use those commands to run the tests
@@ -60,16 +70,6 @@ cargo test
 
 ```bash
 make test
-```
-
-## Build
-
-```bash
-cargo build
-```
-
-```bash
-make build
 ```
 
 ## Coverage
